@@ -1,21 +1,33 @@
 package com.fahrul.pcmonitorandroid.network
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.fahrul.pcmonitorandroid.network.blueprint.SystemStatsData
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 
 class MainViewModel : ViewModel() {
     private val _stats = MutableStateFlow<SystemStatsData?>(null)
-    val stats: StateFlow<SystemStatsData?> = _stats.asStateFlow()
+    val stats = _stats.asStateFlow()
 
     private val _connectionStatus = MutableStateFlow("Terputus")
-    val connectionStatus: StateFlow<String> = _connectionStatus.asStateFlow()
+    val connectionStatus = _connectionStatus.asStateFlow()
 
     private var webSocketClient: PCWebSocketClient? = null
 
-    fun connectToPc(ipAddress: String){
+    private var currentIp: String = ""
+    private var currentScretKey: String = ""
+
+    fun connectToPc(ipAddress: String, secretKey: String){
+        currentIp = ipAddress
+        currentScretKey = secretKey
         _connectionStatus.value = "Menyambungkan..."
 
         webSocketClient = PCWebSocketClient(
@@ -31,6 +43,32 @@ class MainViewModel : ViewModel() {
         )
 
         webSocketClient?.connect()
+    }
+
+    fun sendCommand(action: String) {
+        viewModelScope.launch(Dispatchers.IO){
+            try {
+                val client = OkHttpClient()
+                val json = """{"action": "$action"}"""
+                val body = json.toRequestBody("application/json".toMediaTypeOrNull())
+
+                val request = Request.Builder()
+                    .url("http://$currentIp:8000/api/command/action")
+                    .addHeader("x-api-key", currentScretKey)
+                    .post(body)
+                    .build()
+
+                client.newCall(request).execute().use{response ->
+                    if (response.isSuccessful){
+                        Log.d("NEMBAK", "Berhasil: ${response.body.string()}")
+                    }else {
+                        Log.d("NEMBAK", "Gagal (Ditolak Server): ${response.code}")
+                    }
+                }
+            }catch (e: Exception){
+                Log.e("NEMBAK", "Server Mati / Error: ${e.message}")
+            }
+        }
     }
 
     fun disconnect() {

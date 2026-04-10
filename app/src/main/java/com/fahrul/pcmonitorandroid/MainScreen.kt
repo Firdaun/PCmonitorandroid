@@ -28,6 +28,8 @@ fun DashboardScreen(
     modifier: Modifier = Modifier,
     stats: SystemStatsData?,
     status: String,
+    onLock: () -> Unit,
+    onRestart: () -> Unit,
     onDisconnect: () -> Unit
 ){
     Column(
@@ -61,7 +63,7 @@ fun DashboardScreen(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        BottomRow(onDisconnect = onDisconnect)
+        BottomRow(onDisconnect = onDisconnect, onLock = onLock, onRestart = onRestart)
     }
 }
 

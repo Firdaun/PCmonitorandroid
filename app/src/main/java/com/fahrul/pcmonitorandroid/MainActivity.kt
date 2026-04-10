@@ -27,21 +27,21 @@ class MainActivity : ComponentActivity() {
                 val connectionStatus by viewModel.connectionStatus.collectAsState()
 
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    if (connectionStatus == "Tersambung"){
+                    if (connectionStatus == "Tersambung") {
                         DashboardScreen(
                             modifier = Modifier.padding(innerPadding),
                             stats = stats,
                             status = connectionStatus,
-                            onDisconnect = {
-                                viewModel.disconnect()
-                            }
+                            onLock = { viewModel.sendCommand("lock") },
+                            onRestart = { viewModel.sendCommand("restart") },
+                            onDisconnect = { viewModel.disconnect() }
                         )
                     } else {
                         ConnectionScreen(
                             modifier = Modifier.padding(innerPadding),
                             status = connectionStatus,
-                            onConnectClicked = { ip, _ ->
-                                viewModel.connectToPc(ip)
+                            onConnectClicked = { ip, secret ->
+                                viewModel.connectToPc(ip, secret)
                             }
                         )
                     }
