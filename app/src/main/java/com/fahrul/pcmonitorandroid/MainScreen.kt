@@ -20,19 +20,23 @@ import androidx.compose.ui.unit.sp
 import com.fahrul.pcmonitorandroid.components.BottomRow
 import com.fahrul.pcmonitorandroid.components.ConnectionScreen
 import com.fahrul.pcmonitorandroid.components.MonitorCard
+import com.fahrul.pcmonitorandroid.network.blueprint.SystemStatsData
 import com.fahrul.pcmonitorandroid.ui.theme.PCmonitorandroidTheme
 
 @Composable
 fun DashboardScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    stats: SystemStatsData?,
+    status: String,
+    onDisconnect: () -> Unit
 ){
     Column(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ){
         Text(
-            text = "Pc connected",
-            color = Color(0xFF4CAF50),
+            text = status,
+            color = if (status == "Tersambung") Color(0xFF4CAF50) else Color.Red,
             fontWeight = FontWeight.Bold,
             fontSize = 18.sp,
             style = TextStyle(
@@ -44,15 +48,20 @@ fun DashboardScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        MonitorCard(title = "Suhu CPU", value = "50°C")
+        val cpuTemp = stats?.cpuTemp?.toString()?: "__"
+        val cpuUsage = stats?.cpuUsage?.toString()?: "__"
+        val ramUsed = stats?.ramUsed?.toString()?: "__"
+        val ramTotal = stats?.ramTotal?.toString()?: "__"
+
+        MonitorCard(title = "Suhu CPU", value = "$cpuTemp °C")
         Spacer(modifier = Modifier.height(16.dp))
-        MonitorCard(title = "CPU Usage", value = "12.5 %")
+        MonitorCard(title = "CPU Usage", value = "$cpuUsage %")
         Spacer(modifier = Modifier.height(16.dp))
-        MonitorCard(title = "RAM", value = "4.5 / 15.6 GB")
+        MonitorCard(title = "RAM", value = "$ramUsed / $ramTotal GB")
 
         Spacer(modifier = Modifier.weight(1f))
 
-        BottomRow()
+        BottomRow(onDisconnect = onDisconnect)
     }
 }
 
@@ -65,6 +74,10 @@ fun DashboardScreen(
 @Composable
 fun GreetingPreview() {
     PCmonitorandroidTheme {
-        ConnectionScreen()
+        val connectionStatus = ""
+        ConnectionScreen(
+            status = connectionStatus,
+            onConnectClicked = { _, _ -> }
+        )
     }
 }

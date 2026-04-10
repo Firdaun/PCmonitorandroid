@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -30,12 +31,16 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun ConnectionScreen(
-    modifier: Modifier = Modifier
-){
+    modifier: Modifier = Modifier,
+    status: String,
+    onConnectClicked: (String, String) -> Unit
+) {
     var ipAddress by remember { mutableStateOf("") }
     var secretKey by remember { mutableStateOf("") }
 
     val focusManager = LocalFocusManager.current
+
+    val isLoading = status == "Menyambungkan..."
 
     Column(
         modifier = modifier
@@ -75,8 +80,8 @@ fun ConnectionScreen(
 
         OutlinedTextField(
             value = ipAddress,
-            onValueChange = {ipAddress = it},
-            label = {Text("IP Address PC (Contoh: 192.168.1.1)")},
+            onValueChange = { ipAddress = it },
+            label = { Text("IP Address PC (Contoh: 192.168.1.1)") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
@@ -84,7 +89,7 @@ fun ConnectionScreen(
         OutlinedTextField(
             value = secretKey,
             onValueChange = { secretKey = it },
-            label = {Text("Secret/API Key")},
+            label = { Text("Secret/API Key") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             visualTransformation = PasswordVisualTransformation()
@@ -94,13 +99,24 @@ fun ConnectionScreen(
 
         Button(
             onClick = {
-                println("Mencoba koneksi ke $ipAddress dengan kunci $secretKey")
+                onConnectClicked(ipAddress, secretKey)
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(50.dp)
+                .height(50.dp),
+            enabled = !isLoading
         ) {
-            Text("connect", fontSize = 18.sp)
+            Text(
+                text = if (isLoading) "Menyambungkan..." else "Connect",
+                fontSize = 18.sp
+            )
+        }
+        if (status == "Terputus" && ipAddress.isNotBlank()) {
+            Text(
+                text = "Gagal terhubung. Cek IP dan Server PC.",
+                color = Color.Red,
+                modifier = Modifier.padding(top = 16.dp)
+            )
         }
     }
 }

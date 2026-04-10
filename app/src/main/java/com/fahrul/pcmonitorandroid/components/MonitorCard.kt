@@ -17,8 +17,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun MonitorCard(title: String, value: String){
     Card(
-        modifier = Modifier
-            .fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(

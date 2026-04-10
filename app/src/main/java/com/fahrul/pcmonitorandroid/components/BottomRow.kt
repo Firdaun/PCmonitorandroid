@@ -11,7 +11,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 
 @Composable
-fun BottomRow(){
+fun BottomRow(
+    onDisconnect: () -> Unit
+){
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly
@@ -24,10 +26,10 @@ fun BottomRow(){
             Text("Restart")
         }
         Button(
-            onClick = { /* TODO: Panggil API Lock */ },
+            onClick = { onDisconnect() }, // Sementara dipakai untuk disconnect
             colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
         ) {
-            Text("Shutdown")
+            Text("Disconnect") // Ubah teks sementara
         }
     }
 }
