@@ -51,9 +51,7 @@ class PCWebSocketClient(
                 override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
                     Log.d("WS_CLIENT", "Koneksi WebSocket ditutup $reason")
                     if (code == 1008){
-                    onConnectionClose("Kunci Salah")
-                    }else {
-                        onConnectionClose("Terputus")
+                        onConnectionClose("Kunci Salah")
                     }
                 }
 
@@ -67,18 +65,14 @@ class PCWebSocketClient(
 
                     webSocket.close(1000, null)
 
-                    // 2. Langsung lapor ke UI detik itu juga agar loading-nya berhenti!
                     if (code == 1008) {
                         onConnectionClose("Kunci Salah")
-                    } else {
-                        onConnectionClose("Terputus")
                     }
                 }
             })
 
         } catch (e: Exception){
             Log.e("WS_CLIENT", "🔴 Terjadi kesalahan saat merakit URL: ${e.message}")
-            onConnectionClose("Terputus")
         }
 
     }

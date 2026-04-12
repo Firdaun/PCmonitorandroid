@@ -17,7 +17,7 @@ class MainViewModel : ViewModel() {
     private val _stats = MutableStateFlow<SystemStatsData?>(null)
     val stats = _stats.asStateFlow()
 
-    private val _connectionStatus = MutableStateFlow("Terputus")
+    private val _connectionStatus = MutableStateFlow("Idle")
     val connectionStatus = _connectionStatus.asStateFlow()
 
     private var webSocketClient: PCWebSocketClient? = null
@@ -63,13 +63,13 @@ class MainViewModel : ViewModel() {
 
                 client.newCall(request).execute().use{response ->
                     if (response.isSuccessful){
-                        Log.d("NEMBAK", "Berhasil: ${response.body.string()}")
+                        Log.d("WS_CLIENT", "Berhasil: ${response.body.string()}")
                     }else {
-                        Log.d("NEMBAK", "Gagal (Ditolak Server): ${response.code}")
+                        Log.d("WS_CLIENT", "Gagal (Ditolak Server): ${response.code}")
                     }
                 }
             }catch (e: Exception){
-                Log.e("NEMBAK", "Server Mati / Error: ${e.message}")
+                Log.e("WS_CLIENT", "Server Mati / Error: ${e.message}")
             }
         }
     }

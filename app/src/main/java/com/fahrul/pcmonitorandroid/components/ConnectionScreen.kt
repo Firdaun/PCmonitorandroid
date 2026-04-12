@@ -137,7 +137,7 @@ fun ConnectionScreen(
                     modifier = Modifier.padding(top = 16.dp)
                 )
             }
-            "Terputus" if ipAddress.isNotBlank() -> {
+            "Terputus" -> {
                 Text(
                     text = "Gagal terhubung. Cek Ip dan Server PC.",
                     color = Color.Red,
