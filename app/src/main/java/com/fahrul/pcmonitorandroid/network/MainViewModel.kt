@@ -23,21 +23,24 @@ class MainViewModel : ViewModel() {
     private var webSocketClient: PCWebSocketClient? = null
 
     private var currentIp: String = ""
-    private var currentScretKey: String = ""
+    private var currentSecretKey: String = ""
+
+    private val httpClient = OkHttpClient()
 
     fun connectToPc(ipAddress: String, secretKey: String){
         currentIp = ipAddress
-        currentScretKey = secretKey
+        currentSecretKey = secretKey
         _connectionStatus.value = "Menyambungkan..."
 
         webSocketClient = PCWebSocketClient(
             ipAddress = ipAddress,
+            secretKey = secretKey,
             onStatsReceived = { newData ->
                 _stats.value = newData
                 _connectionStatus.value = "Tersambung"
             },
-            onConnectionClose = {
-                _connectionStatus.value = "Terputus"
+            onConnectionClose = { reason ->
+                _connectionStatus.value = reason
                 _stats.value = null
             }
         )
@@ -48,13 +51,13 @@ class MainViewModel : ViewModel() {
     fun sendCommand(action: String) {
         viewModelScope.launch(Dispatchers.IO){
             try {
-                val client = OkHttpClient()
+                val client = httpClient
                 val json = """{"action": "$action"}"""
                 val body = json.toRequestBody("application/json".toMediaTypeOrNull())
 
                 val request = Request.Builder()
                     .url("http://$currentIp:8000/api/command/action")
-                    .addHeader("x-api-key", currentScretKey)
+                    .addHeader("x-api-key", currentSecretKey)
                     .post(body)
                     .build()
 

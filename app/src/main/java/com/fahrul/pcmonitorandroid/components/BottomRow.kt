@@ -24,6 +24,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -78,7 +80,8 @@ fun BottomRow(
                     )
 
                     Text(
-                        text = "Apakah kamu yakin ingin me-restart PC ini?",
+                        text = "kamu yakin ingin me-restart PC ini? Aplikasi nya akan terputus karena server juga mati ketika pc di restart/matikan",
+                        style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
                         fontSize = 14.sp,
                         color = Color.Gray,
                         modifier = Modifier.padding(bottom = 15.dp)
@@ -88,10 +91,14 @@ fun BottomRow(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.End
                     ) {
-                        TextButton(
-                            onClick = { showRestartDialog = false }
+                        Button(
+                            onClick = {showRestartDialog = false},
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.Green)
                         ) {
-                            Text("Batal", color = Color.Gray)
+                            Text(
+                                text = "Batal",
+                                color = Color.Black
+                            )
                         }
 
                         Spacer(modifier = Modifier.width(8.dp))
@@ -103,7 +110,10 @@ fun BottomRow(
                             },
                             colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
                         ) {
-                            Text("Ya, Restart")
+                            Text(
+                                text = "Ya, Restart",
+                                color = Color.White
+                            )
                         }
                     }
                 }

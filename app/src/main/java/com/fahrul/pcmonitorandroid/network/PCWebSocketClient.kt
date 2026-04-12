@@ -12,8 +12,9 @@ import okhttp3.WebSocketListener
 
 class PCWebSocketClient(
     private val ipAddress: String,
+    private val secretKey: String,
     private val onStatsReceived: (SystemStatsData) -> Unit,
-    private val onConnectionClose: () -> Unit,
+    private val onConnectionClose: (String) -> Unit,
 ) {
     private var webSocket: WebSocket? = null
     private val client = OkHttpClient()
@@ -22,12 +23,15 @@ class PCWebSocketClient(
     fun connect() {
         if (ipAddress.isBlank()) {
             Log.e("WS_CLIENT", "IP Address tidak boleh kosong")
-            onConnectionClose()
+            onConnectionClose("Filed kosong")
             return
         }
         val baseUrl = "ws://$ipAddress:8000"
         try {
-            val request = Request.Builder().url(baseUrl).build()
+            val request = Request.Builder()
+                .url(baseUrl)
+                .addHeader("x-api-key", secretKey)
+                .build()
             webSocket = client.newWebSocket(request, object : WebSocketListener() {
                 override fun onOpen(webSocket: WebSocket, response: Response) {
                     Log.d("WS_CLIENT", "Berhasil terhubung ke $baseUrl")
@@ -45,19 +49,36 @@ class PCWebSocketClient(
                 }
 
                 override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
-                    Log.d("WS_CLIENT", "Koneksi WebSocket ditutup")
-                    onConnectionClose()
+                    Log.d("WS_CLIENT", "Koneksi WebSocket ditutup $reason")
+                    if (code == 1008){
+                    onConnectionClose("Kunci Salah")
+                    }else {
+                        onConnectionClose("Terputus")
+                    }
                 }
 
                 override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
                     Log.e("WS_CLIENT", "🔴 KONEKSI GAGAL KARENA: ${t.message}")
-                    onConnectionClose()
+                    onConnectionClose("Terputus")
+                }
+
+                override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
+                    Log.d("WS_CLIENT", "Server memutus koneksi: $reason")
+
+                    webSocket.close(1000, null)
+
+                    // 2. Langsung lapor ke UI detik itu juga agar loading-nya berhenti!
+                    if (code == 1008) {
+                        onConnectionClose("Kunci Salah")
+                    } else {
+                        onConnectionClose("Terputus")
+                    }
                 }
             })
 
         } catch (e: Exception){
             Log.e("WS_CLIENT", "🔴 Terjadi kesalahan saat merakit URL: ${e.message}")
-            onConnectionClose()
+            onConnectionClose("Terputus")
         }
 
     }

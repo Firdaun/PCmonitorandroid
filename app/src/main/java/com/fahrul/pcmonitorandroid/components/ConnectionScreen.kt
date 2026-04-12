@@ -1,5 +1,6 @@
 package com.fahrul.pcmonitorandroid.components
 
+import android.util.Log
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -8,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -25,6 +28,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -83,7 +87,8 @@ fun ConnectionScreen(
             onValueChange = { ipAddress = it },
             label = { Text("IP Address PC (Contoh: 192.168.1.1)") },
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
         )
 
         OutlinedTextField(
@@ -92,13 +97,23 @@ fun ConnectionScreen(
             label = { Text("Secret/API Key") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            visualTransformation = PasswordVisualTransformation()
+            visualTransformation = PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    focusManager.clearFocus()
+                    if (!isLoading && ipAddress.isNotBlank()) {
+                        onConnectClicked(ipAddress, secretKey)
+                    }
+                }
+            )
         )
 
         Spacer(modifier = Modifier.height(32.dp))
 
         Button(
             onClick = {
+                focusManager.clearFocus()
                 onConnectClicked(ipAddress, secretKey)
             },
             modifier = Modifier
@@ -111,12 +126,31 @@ fun ConnectionScreen(
                 fontSize = 18.sp
             )
         }
-        if (status == "Terputus" && ipAddress.isNotBlank()) {
-            Text(
-                text = "Gagal terhubung. Cek IP dan Server PC.",
-                color = Color.Red,
-                modifier = Modifier.padding(top = 16.dp)
-            )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        when (status) {
+            "Kunci Salah" -> {
+                Text(
+                    text = "Secret key salah! akses di tolak oleh PC.",
+                    color = Color.Red,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+            }
+            "Terputus" if ipAddress.isNotBlank() -> {
+                Text(
+                    text = "Gagal terhubung. Cek Ip dan Server PC.",
+                    color = Color.Red,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+            }
+            "Filed kosong" -> {
+                Text(
+                    text = "kolom tidak boleh kosong",
+                    color = Color.Red,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+            }
         }
     }
 }
