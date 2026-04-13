@@ -54,7 +54,10 @@ fun BottomRow(
             onClick = { onDisconnect() },
             colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
         ) {
-            Text("Disconnect")
+            Text(
+                text = "Disconnect",
+                color = Color.White
+            )
         }
     }
 

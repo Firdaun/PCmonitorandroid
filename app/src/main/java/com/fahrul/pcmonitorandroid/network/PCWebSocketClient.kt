@@ -49,7 +49,7 @@ class PCWebSocketClient(
                 }
 
                 override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
-                    Log.d("WS_CLIENT", "Koneksi WebSocket ditutup $reason")
+                    Log.e("WS_CLIENT", "Koneksi WebSocket ditutup $reason")
                     if (code == 1008){
                         onConnectionClose("Kunci Salah")
                     }
@@ -61,7 +61,7 @@ class PCWebSocketClient(
                 }
 
                 override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
-                    Log.d("WS_CLIENT", "Server memutus koneksi: $reason")
+                    Log.e("WS_CLIENT", "Server memutus koneksi: $reason")
 
                     webSocket.close(1000, null)
 

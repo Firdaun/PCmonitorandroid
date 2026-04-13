@@ -76,7 +76,7 @@ class MainViewModel : ViewModel() {
 
     fun disconnect() {
         webSocketClient?.disconnect()
-        _connectionStatus.value = "Terputus"
+        _connectionStatus.value = "Sengaja di putuskan"
         _stats.value = null
     }
 
